@@ -7,18 +7,20 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/abhi-224/snippetbox/internal/models"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 
-	dsn := flag.String("dsn", "postgres://web:pass@localhost:5432/snippetbox", "Postgres data source name")
+	dsn := flag.String("dsn", "postgres://postgres:password@localhost:5432/snippetbox", "Postgres data source name")
 
 	flag.Parse()
 
@@ -29,12 +31,12 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-
 	defer db.Close()
 
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	srv := &http.Server{
